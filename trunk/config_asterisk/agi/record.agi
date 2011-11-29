@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+my $wav_conert="/usr/local/bin/2wav2stereo.sh";
+my $date=`date "+%Y.%m.%d_%H.%M.%S"`;
+my $datemonth=`date "+%Y%m"`;
+my $dateday=`date "+%d"`;
+my $root_dir="/home/samba/records";
+
+chomp($date);
+chomp($datemonth);
+chomp($dateday);
+
+mkdir "$root_dir/$datemonth","0777";
+chmod oct("0777"),"$root_dir/$datemonth";
+
+mkdir "$root_dir/$datemonth/$dateday","0777";
+chmod oct("0777"),"$root_dir/$datemonth/$dateday";
+
+
+use Asterisk::AGI;
+$AGI = new Asterisk::AGI;
+my %input = $AGI->ReadParse();
+
+$AGI->set_variable("MONITOR_EXEC", $wav_conert);
+$AGI->exec("Monitor","wav,$root_dir/$datemonth/$dateday/$ARGV[0]\_$date\_src$ARGV[1]\_dst$ARGV[2],m");
+exit 0;
