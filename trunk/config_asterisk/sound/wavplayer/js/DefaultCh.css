@@ -1,0 +1,30 @@
+body {width:100%;min-width:1021px;margin:0;padding:0;background:#e0f0fb 0 0 repeat-x}
+body,p,td {color:#000000; font: 14px 'arial', sans-serif;letter-spacing:0.1px;}
+form {margin:0;padding:0}
+
+#page {width:1021px;margin:0px auto;border:1px solid #d6d6d6;border-top:0;border-bottom:0;background:#e9ecef;margin-top:0px}
+#pageInn {padding:20px 0 100px 0;position:relative}
+
+div.clear {clear:both}
+div.right {float:right}
+div.left {float:left}
+div.h10 {height:10px}
+div.white {background:white !important}
+
+a {color:#514963;outline:none}
+a:hover	{}
+
+h1 {font-size:36px;margin:0;letter-spacing:-1px;height:70px;width:700px}
+h1.h1too {font-size:28px;width:450px}
+h2 {font-size:20px;color:#000000;letter-spacing:-1px;margin:15px 0 0 0}
+h3 {font-weight:bold;font-size:16px;color:#333333;letter-spacing:-1px;margin:15px 0 0 0;text-transform:uppercase}
+h4 {font-weight:bold;font-size:14px;letter-spacing:-1px;margin:5px 0 0 0}
+
+div.divInn {padding:10px 0 20px 20px}
+#topfix {width:100%;height:100px;overflow:hidden;position:fixed;z-index:301;background:#eaeaea;border-bottom:1px dashed gray}
+#topfixInn {padding-top:10px;width:1021px;margin:0 auto;position:relative}
+#toptext {padding-top:130px;width:1021px;margin:0 auto;}
+#topfixsets {position:absolute;top:10px;left:400px;width:500px}
+
+div.callsItems {}
+div.callsItem a {display:block;padding:5px}
