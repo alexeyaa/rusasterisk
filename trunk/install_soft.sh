@@ -1,15 +1,15 @@
 #!/bin/sh
-###################################################3
-###################################################3
+######################################################################################################
+######################################################################################################
 #Скрипт устанавливает нам Астериск
-###################################################3
-###################################################3
-ROOT_DIR='/root'
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
 HW='i386'
 #HW='x86_64'
-VERSION="0.0.2"
-WGET=`which wget 2>/dev/null`
-#WGETOPT=
+VERSION="0.0.3"
+
 clear
 
 IFCONFIG=`which ifconfig 2>/dev/null||echo /sbin/ifconfig`
@@ -17,8 +17,10 @@ IPADDR=`$IFCONFIG |gawk '/inet addr/{print $2}'|gawk -F: '{print $2}'`
 echo "$IPADDR"
 
 echo "Версия скрипта $VERSION"
-echo "press any key to continue or CTRL-C to exit"
+echo "Железка $HW"
+echo "Жмем CTRL-C для выхода, или начинаем ставить дальше"
 read TEMP
+
 
 
 ##################################### Скачиваем и ставим Asterisk начинаем с репозиториев  #####################################
@@ -46,28 +48,15 @@ echo "yum -y install asterisk"
 yum -y install yum-repos-asterisk.noarch
 yum -y install mc.$HW
 yum -y install asterisk16.$HW 
-yum -y install asterisk16-addons.$HW 
-#yum -y install asterisk16-addons-mysql.$HW
-yum -y install asterisk16-configs.$HW
 yum -y install sox.$HW
 
-##################################### Скачиваем AGI #####################################
-FILEAGI="asterisk-perl-1.01"
-AGIURL="http://search.cpan.org/CPAN/authors/id/J/JA/JAMESGOL/$FILEAGI.tar.gz"
-cd ./$ROOT_DIR
-$WGET $AGIURL
-#В дальнейшем необходимо подправить gawk!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-echo "tar xvzf ./$FILEAGI.tar.gz"
-tar xvzf ./$FILEAGI.tar.gz
-cd ./$FILEAGI
-echo "perl Makefile.PL"
-perl Makefile.PL
-echo "make all"
-make all
-echo "make install"
-make install
+##################################### Ставим perl AGI #####################################
 
-rm -f $ROOT_DIR/$FILEAGI
+cd ./config_asterisk/asterisk-perl-1.01
+perl Makefile.PL
+make all
+make install
+cd ../
 
 ##################################### Скачиваем и ставим Apache  ###################################
 
@@ -92,44 +81,30 @@ echo "
 
 echo "Hellow World" > /var/www/html/index.html
 
-##################################### Скачиваем и ставим MySQL #####################################
-cd $ROOT_DIR
-FILE='sql.txt'
-$WGET $WGETOPT http://3090607.ru/asterisk/$FILE
-echo "Download sql.txt"
+##################################### ставим MySQL #####################################
 
 yum -y install mysql-server.$HW
 service mysqld start
 /usr/bin/mysqladmin -u root password 'AlExAnDeRpWd'
-cd $ROOT_DIR
-mysql --user=root --password='AlExAnDeRpWd' < ./sql.txt
+mysql --user=root --password='AlExAnDeRpWd' < ./config_asterisk/sql.txt
 
-########################################### Качаем звук ###########################################
-FILE='asterisk-sound-ru-gsm'
-$WGET $WGETOPT http://3090607.ru/asterisk/$FILE.tar.gz
-echo "tar xvzf ./$FILE.tar.gz"
-echo ""
-echo ""
-tar xvzf ./$FILE.tar.gz -C /var/lib/asterisk/sounds/
+##################### после mysql ставим addon астериска
+yum -y install asterisk16-addons.$HW 
+yum -y install asterisk16-addons-mysql.$HW
+yum -y install asterisk16-configs.$HW
+
+########################################### разбираемся со  звуком ###########################################
+
+mv -f ./config_asterisk/sound/sound/*  /var/lib/asterisk/sounds/
 chown asterisk:asterisk -R /var/lib/asterisk/sounds/ru
 
-cd $ROOT_DIR
-$WGET $WGETOPT http://3090607.ru/asterisk/record.agi
-chmod +x record.agi
-mv -f record.agi /var/lib/asterisk/agi-bin/record.agi
+mv -f ./config_asterisk/agi/record.agi /var/lib/asterisk/agi-bin/record.agi
 
-cd $ROOT_DIR
-$WGET $WGETOPT http://3090607.ru/asterisk/2wav2stereo.sh
-chmod +x 2wav2stereo.sh
-mv -f 2wav2stereo.sh /usr/local/bin/2wav2stereo.sh
+mv -f ./config_asterisk/sound/2wav2stereo.sh /usr/local/bin/2wav2stereo.sh
 
-FILE='wavplayer'
-$WGET $WGETOPT http://3090607.ru/asterisk/$FILE.tar.gz
-echo "tar xvzf ./$FILE.tar.gz"
-tar xvzf ./$FILE.tar.gz -C /var/www/html
+mkdir /var/www/html/wavplayer
+mv -f ./config_asterisk/sound/wavplayer/*  /var/www/html/wavplayer/
 chown asterisk:asterisk -R /var/www/html/$FILE
-cd $ROOT_DIR
-
 
 mkdir /home/samba
 mkdir /home/samba/records
