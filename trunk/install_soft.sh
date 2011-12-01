@@ -9,6 +9,7 @@
 HW='i386'
 #HW='x86_64'
 VERSION="0.0.3"
+ROOT_DIR=`pwd`
 
 clear
 
@@ -44,19 +45,25 @@ gpgcheck=0
 " > /etc/yum.repos.d/centos-digium.repo
 
 ##################################### Скачиваем и ставим Asterisk   #####################################
-echo "yum -y install asterisk"
-yum -y install yum-repos-asterisk.noarch
+echo "######################### yum install make ##################################"
+yum -y install make.$HW
+echo "######################### yum install mc  ##################################"
 yum -y install mc.$HW
+echo "######################### yum install yum-repos-asterisk  ##################################"
+yum -y install yum-repos-asterisk.noarch
+echo "######################### yum install asterisk 16 ##################################"
 yum -y install asterisk16.$HW 
+echo "######################### yum install sox  ##################################"
 yum -y install sox.$HW
+
 
 ##################################### Ставим perl AGI #####################################
 
-cd ./config_asterisk/asterisk-perl-1.01
+cd $ROOT_DIR/config_asterisk/asterisk-perl-1.01
 perl Makefile.PL
 make all
 make install
-cd ../
+cd $ROOT_DIR
 
 ##################################### Скачиваем и ставим Apache  ###################################
 
@@ -86,7 +93,7 @@ echo "Hellow World" > /var/www/html/index.html
 yum -y install mysql-server.$HW
 service mysqld start
 /usr/bin/mysqladmin -u root password 'AlExAnDeRpWd'
-mysql --user=root --password='AlExAnDeRpWd' < ./config_asterisk/sql.txt
+mysql --user=root --password='AlExAnDeRpWd' < $ROOT_DIR/config_asterisk/sql.txt
 
 ##################### после mysql ставим addon астериска
 yum -y install asterisk16-addons.$HW 
@@ -95,15 +102,15 @@ yum -y install asterisk16-configs.$HW
 
 ########################################### разбираемся со  звуком ###########################################
 
-mv -f ./config_asterisk/sound/sound/*  /var/lib/asterisk/sounds/
+mv -f $ROOT_DIR/config_asterisk/sound/sound/*  /var/lib/asterisk/sounds/
 chown asterisk:asterisk -R /var/lib/asterisk/sounds/ru
 
-mv -f ./config_asterisk/agi/record.agi /var/lib/asterisk/agi-bin/record.agi
+mv -f $ROOT_DIR/config_asterisk/agi/record.agi /var/lib/asterisk/agi-bin/record.agi
 
-mv -f ./config_asterisk/sound/2wav2stereo.sh /usr/local/bin/2wav2stereo.sh
+mv -f $ROOT_DIR/config_asterisk/sound/2wav2stereo.sh /usr/local/bin/2wav2stereo.sh
 
 mkdir /var/www/html/wavplayer
-mv -f ./config_asterisk/sound/wavplayer/*  /var/www/html/wavplayer/
+mv -f $ROOT_DIR/config_asterisk/sound/wavplayer/*  /var/www/html/wavplayer/
 chown asterisk:asterisk -R /var/www/html/$FILE
 
 mkdir /home/samba
@@ -155,9 +162,4 @@ SIPPORT='5544'
 echo "
 /etc/sysconfig/iptables
 " >> /etc/rc.d/rc.local
-
-
-
-
-
 
