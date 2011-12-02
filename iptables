@@ -1,0 +1,35 @@
+#!/bin/sh
+###########################################################################
+###########################################################################
+# 1. Настройка переменных 
+IPTABLES='/sbin/iptables'
+LO_IFACE='lo'
+#LAN_IFACE='eth0'
+#INET_IFACE='eth1'
+ADMIN_IP='195.64.140.121'
+
+DNS1='8.8.8.8'
+DNS2='8.8.4.4'
+
+SIPPORT='5544'
+
+########## если будет маршрутизация, необходимо включить
+#echo \"1\" > /proc/sys/net/ipv4/ip_forward
+
+$IPTABLES -F INPUT
+$IPTABLES -F OUTPUT
+$IPTABLES -F FORWARD
+
+$IPTABLES -t nat -F  PREROUTING
+$IPTABLES -t nat -F POSTROUTING
+
+$IPTABLES -P INPUT ACCPET
+$IPTABLES -P OUTPUT ACCEPT
+$IPTABLES -P FORWARD ACCEPT
+
+
+$IPTABLES -A INPUT -p all  -s $ADMIN_IP -j ACCEPT
+$IPTABLES -A INPUT -p tcp -s ! $LAN_NET  -m multiport --destination-port 25,53,80,110,111,139,323,445,979,3306,5038 -j DROP
+
+$IPTABLES -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+
