@@ -10,6 +10,7 @@ HW='i386'
 #HW='x86_64'
 VERSION="0.0.3"
 ROOT_DIR=`pwd`
+PASSWD='AlExAnDeRpWd'
 
 clear
 
@@ -92,8 +93,8 @@ echo "Hellow World" > /var/www/html/index.html
 
 yum -y install mysql-server.$HW
 service mysqld start
-/usr/bin/mysqladmin -u root password 'AlExAnDeRpWd'
-mysql --user=root --password='AlExAnDeRpWd' < $ROOT_DIR/config_asterisk/sql.txt
+/usr/bin/mysqladmin -u root password "$PASSWD"
+mysql --user=root --password="$PASSWD" < $ROOT_DIR/config_asterisk/sql.txt
 
 ##################### после mysql ставим addon астериска
 yum -y install asterisk16-addons.$HW 
@@ -118,47 +119,8 @@ mkdir /home/samba/records
 ln -s /home/samba/records /var/www/html/records
 
 ############################################## ставим iptables ##############################################
-
-
-echo "
-#!/bin/sh
-
-###########################################################################
-#
-# 1. Configuration options.
-IPTABLES='/sbin/iptables'
-LO_IFACE='lo'
-#LAN_IFACE='eth0'
-#INET_IFACE='eth1'
-ADMIN_IP='195.64.140.121'
-
-DNS1='8.8.8.8'
-DNS2='8.8.4.4'
-
-SIPPORT='5544'
-
-#echo \"1\" > /proc/sys/net/ipv4/ip_forward
-
-\$IPTABLES -F INPUT
-\$IPTABLES -F OUTPUT
-\$IPTABLES -F FORWARD
-
-\$IPTABLES -t nat -F  PREROUTING
-\$IPTABLES -t nat -F POSTROUTING
-
-\$IPTABLES -P INPUT ACCPET
-\$IPTABLES -P OUTPUT ACCEPT
-\$IPTABLES -P FORWARD ACCEPT
-
-
-\$IPTABLES -A INPUT -p all  -s \$ADMIN_IP -j ACCEPT
-\$IPTABLES -A INPUT -p tcp -s ! \$LAN_NET  -m multiport --destination-port 25,53,80,110,111,139,323,445,979,3306,5038 -j DROP
-
-#\$IPTABLES -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-
-" > /etc/sysconfig/iptables
-
-
+mv -f $ROOT_DIR/iptables /etc/sysconfig/iptables
+chmod +x $ROOT_DIR/iptables
 echo "
 /etc/sysconfig/iptables
 " >> /etc/rc.d/rc.local
