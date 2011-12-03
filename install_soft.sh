@@ -55,7 +55,7 @@ yum -y install yum-repos-asterisk.noarch
 echo "######################### yum install asterisk 16 ###########################"
 yum -y install asterisk16.$HW 
 #################### что б астериск работал качественно редактируем safe_asterisk
-sed -e -i  's/^TTY=/#TTY=/g' /usr/sbin/safe_asterisk
+sed -i -e  's/^TTY=/#TTY=/g' /usr/sbin/safe_asterisk
 
 /sbin/service asterisk restart
 
@@ -126,6 +126,9 @@ chown asterisk:asterisk -R /var/www/html/$FILE
 mkdir /home/samba
 mkdir /home/samba/records
 ln -s /home/samba/records /var/www/html/records
+
+################################## добавляем перловский скрипт для отправки почты ##################################
+cp -f $ROOT_DIR/config_asterisk/sendEmail /bin/sendEmail
 
 ############################################## ставим iptables ##############################################
 cp -f $ROOT_DIR/iptables /etc/sysconfig/iptables
