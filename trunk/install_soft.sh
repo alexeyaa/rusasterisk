@@ -8,10 +8,10 @@
 ######################################################################################################
 HW='i386'
 #HW='x86_64'
-VERSION="0.0.3"
+VERSION="0.0.4"
 ROOT_DIR=`pwd`
 PASSWD='AlExAnDeRpWd'
-
+email='101@3090607.ru'
 clear
 
 IFCONFIG=`which ifconfig 2>/dev/null||echo /sbin/ifconfig`
@@ -48,18 +48,27 @@ gpgcheck=0
 ##################################### Скачиваем и ставим Asterisk   #####################################
 echo "######################### yum install make ##################################"
 yum -y install make.$HW
-echo "######################### yum install mc  ##################################"
+echo "######################### yum install mc  ###################################"
 yum -y install mc.$HW
-echo "######################### yum install yum-repos-asterisk  ##################################"
+echo "#################### yum install yum-repos-asterisk  ########################"
 yum -y install yum-repos-asterisk.noarch
-echo "######################### yum install asterisk 16 ##################################"
+echo "######################### yum install asterisk 16 ###########################"
 yum -y install asterisk16.$HW 
+#################### что б астериск работал качественно редактируем safe_asterisk
+sed -e -i  's/^TTY=/#TTY=/g' /usr/sbin/safe_asterisk
+
+/sbin/service asterisk restart
+
 echo "######################### yum install sox  ##################################"
 yum -y install sox.$HW
 
+echo "######################### yum install php  ##################################"
+yum install php.x86_64
+
+
 
 ##################################### Ставим perl AGI #####################################
-
+echo "######################### ставим PerlAGI  ##################################"
 cd $ROOT_DIR/config_asterisk/asterisk-perl-1.01
 perl Makefile.PL
 make all
@@ -67,14 +76,14 @@ make install
 cd $ROOT_DIR
 
 ##################################### Скачиваем и ставим Apache  ###################################
-
+echo "######################### yum install httpd  ##################################"
 yum -y install httpd.$HW
-echo "Listen 323" >>/etc/httpd/conf/httpd.conf
 echo "
+Listen 323
 <VirtualHost *:323>
  ServerName asterisk.localhost
  ServerAlias *.asterisk.localhost
- ServerAdmin 101@3090607.ru
+ ServerAdmin $email
  ErrorLog /var/log/httpd/asterisk.err
  CustomLog /var/log/httpd/asterisk.log combined
  DocumentRoot /var/www/html/wavplayer/
@@ -90,7 +99,7 @@ echo "
 echo "Hellow World" > /var/www/html/index.html
 
 ##################################### ставим MySQL #####################################
-
+echo "######################### yum install mysql  ##################################"
 yum -y install mysql-server.$HW
 service mysqld start
 /usr/bin/mysqladmin -u root password "$PASSWD"
@@ -103,15 +112,15 @@ yum -y install asterisk16-configs.$HW
 
 ########################################### разбираемся со  звуком ###########################################
 
-mv -f $ROOT_DIR/config_asterisk/sound/sound/*  /var/lib/asterisk/sounds/
+cp -f $ROOT_DIR/config_asterisk/sound/sound/*  /var/lib/asterisk/sounds/
 chown asterisk:asterisk -R /var/lib/asterisk/sounds/ru
 
-mv -f $ROOT_DIR/config_asterisk/agi/record.agi /var/lib/asterisk/agi-bin/record.agi
+cp -f $ROOT_DIR/config_asterisk/agi/record.agi /var/lib/asterisk/agi-bin/record.agi
 
-mv -f $ROOT_DIR/config_asterisk/sound/2wav2stereo.sh /usr/local/bin/2wav2stereo.sh
+cp -f $ROOT_DIR/config_asterisk/sound/2wav2stereo.sh /usr/local/bin/2wav2stereo.sh
 
 mkdir /var/www/html/wavplayer
-mv -f $ROOT_DIR/config_asterisk/sound/wavplayer/*  /var/www/html/wavplayer/
+cp -f $ROOT_DIR/config_asterisk/sound/wavplayer/*  /var/www/html/wavplayer/
 chown asterisk:asterisk -R /var/www/html/$FILE
 
 mkdir /home/samba
@@ -119,7 +128,7 @@ mkdir /home/samba/records
 ln -s /home/samba/records /var/www/html/records
 
 ############################################## ставим iptables ##############################################
-mv -f $ROOT_DIR/iptables /etc/sysconfig/iptables
+cp -f $ROOT_DIR/iptables /etc/sysconfig/iptables
 chmod +x $ROOT_DIR/iptables
 echo "
 /etc/sysconfig/iptables
