@@ -1,8 +1,13 @@
 #!/bin/sh
 PASSWD='AsTeRiXpWd'
 
+TERMINATECALLIP='80.246.254.114'
+TERMINATECALLPORT='5544'
+
 NUMTELPHIN=""
 PASTELPHIN=""
+
+NAT=no
 
 SOSPORT="8222"
 SOSHOST="home.tarakanovs.ru"
@@ -12,7 +17,10 @@ FAXTOEMAIL="nomail@nomail.ru"
 
 USERAGENT="Planet"
 
-VERSION='0.0.3'
+STARTPEER=0
+STOPPEER=0
+
+VERSION='0.0.4'
 PORT='5544'
 clear
 
@@ -26,7 +34,11 @@ read TEMP
 /usr/sbin/asterisk -rx "database put  DAYNIGHT pstn DAY"
 
 IFCONFIG=`which ifconfig 2>/dev/null||echo /sbin/ifconfig`
-IPADDR=`$IFCONFIG |gawk '/inet addr/{print $2}'|gawk -F: '{print $2}'`
+IPADDR=`$IFCONFIG |gawk '/inet addr/{print $2}'|gawk -F: '{print $2}' |grep -v 127.0`
+
+#### можно проверить ip еще и так 
+###IPADDR=`wget -qO- http://internet.yandex.ru/ | gawk '/Мой IP:/{print $5}' |gawk -F\< '{print $1}'`
+
 echo "$IPADDR"
 ##################################### Настраиваем Астериск #####################################
 ############################### MySQL 
@@ -41,11 +53,11 @@ userfield=1
 ;sock=/tmp/mysql.sock
 " > /etc/asterisk/cdr_mysql.conf
 
-############################### Loging
+############################### Loging asterisk
 echo "; Сгенерированно скриптом от Сашки v.$VERSION
 [general]
 ;dateformat=%F %T       ; ISO 8601 date format
-;dateformat=%F %T.%3q   ; with milliseconds
+dateformat=%F %T.%3q   ; with milliseconds
 ;appendhostname = yes
 ;queue_log = no
 ;queue_log_name = queue_log
@@ -61,34 +73,79 @@ echo "; Сгенерированно скриптом от Сашки v.$VERSION
 console => notice,warning,error
 messages => notice,warning,error
 full => notice,warning,error,debug,verbose
-" > /etc/asterisk/cdr_mysql.conf
+" > /etc/asterisk/logger.conf
+
 
 ############################### Aliases #########################################
 sed -i -e 's/^;template = individual_custom/template = individual_custom/g' /etc/asterisk/cli_aliases.conf
-sed -i -e 's/^;#include "/etc/asterisk/aliases"/#include "/etc/asterisk/aliases"/g' /etc/asterisk/cli_aliases.conf
+sed -i -e 's/^;#include "\/etc\/asterisk\/aliases"/#include "\/etc\/asterisk\/aliases"/g' /etc/asterisk/cli_aliases.conf
 
 
 echo "; Сгенерированно скриптом от Сашки v.$VERSION
 sreg=sip show registry
 speer=sip show peers
 sdeb=sip set debug
+restart=core restart now
 " > /etc/asterisk/aliases
 
-############################### SIP.CONF
+
+
+############################################### MOH ##################################################
+
+echo "
+[silence]
+mode=files
+directory=/var/lib/asterisk/moh/gz
+" > /etc/asterisk/musiconhold_custom.conf
+
+
+######################################################################################################
+############################################# SIP.CONF ###############################################
+######################################################################################################
+######################################################################################################
 echo "; Сгенерированно скриптом от Сашки v.$VERSION
 [general]
 #include sip_general.conf
 #include sip_registrations.conf
+#include sip_registrations_mf.conf
+
 #include sip_peers.conf
 #include sip_trunks.conf
+#include sip_peer_mf.conf
+#include sip_peer_terminat.conf
+
 " > /etc/asterisk/sip.conf
+touch /etc/asterisk/sip_general.conf
+touch /etc/asterisk/sip_registrations.conf
+touch /etc/asterisk/sip_registrations_mf.conf
+touch /etc/asterisk/sip_peers.conf
+touch /etc/asterisk/sip_trunks.conf
+touch /etc/asterisk/sip_peer_mf.conf
+touch /etc/asterisk/sip_peer_terminat.conf
+
+echo "; Сгенерированно скриптом от Сашки v.$VERSION
+[terminatecall]
+host=$TERMINATECALLIP
+port=$TERMINATECALLPORT
+qualify=yes
+type=peer
+nat=no
+insecure=invite,port
+canreinvite=no
+disallow=all
+allow=ulaw
+allow=all
+" > /etc/asterisk/sip_peer_terminat.conf
+
+
+
 
 echo "; Сгенерированно скриптом от Сашки v.$VERSION
 bindport=$PORT
-externip=
-localnet=
+externip=$IPADDR
+;localnet=$LANNET
 qualyfiy=yes
-nat=yes
+nat=$NAT
 canreinvite=no
 useragent=$USERAGENT
 vmexten=*97
@@ -124,7 +181,7 @@ host=$SOSHOST
 port=$SOSPORT
 context=sos
 
-[telphin](trunk)
+[trunk1](trunk)
 username=$NUMTELPHIN
 fromuser=$NUMTELPHIN
 defaultuser=$NUMTELPHIN
@@ -132,7 +189,7 @@ password=$PASTELPHIN
 host=sip.telphin.com
 fromdomain=sip.telphin.com
 port=5068
-context=telphin
+context=from-trunk
 
 " > /etc/asterisk/sip_trunks.conf
 
@@ -153,7 +210,7 @@ context=office
 
 " > /etc/asterisk/sip_peers.conf
 
-for (( c=0; $c<31; c=$c+1 ));
+for (( c=$STARTPEER; $c<$STOPPEER; c=$c+1 ));
 do
 rnd=`cat /dev/urandom |tr -dc A-Za-z0-9| (head -c $1 > /dev/null 2>&1 || head -c 8)`
 let peer=100+$c
@@ -167,7 +224,7 @@ done
 
 
 echo "; Сгенерированно скриптом от Сашки v.$VERSION
-register => $NUMTELPHIN:$PASTELPHIN\@sip.telphin.com:5068
+register => $NUMTELPHIN:$PASTELPHIN@sip.telphin.com:5068
 
 " > /etc/asterisk/sip_registrations.conf
 
@@ -178,7 +235,10 @@ register => $NUMTELPHIN:$PASTELPHIN\@sip.telphin.com:5068
 echo "
 ; добавлено Сашкиным скриптом v.$VERSION
 #include extensions_alex.conf
-" >> /etc/asterisk/extensions.conf
+############## Для мультифона созадили отдельный файл
+#include extensions_mf.conf
+#include extensions_obzvon.conf
+" > /etc/asterisk/extensions.conf
 
 echo "
 ; Сгенерированно скриптом от Сашки v.$VERSION
@@ -246,7 +306,7 @@ exten => *00,1,ChanSpy(all,oq)
 ############################# исходящие звонки от Телфина ##################################
 exten => _9X.,1,NoOp(Call to World - Telphin )
 exten => _9X.,n,AGI(record.agi,out9,\${CALLERID(num)},\${EXTEN:1})
-exten => _9X.,n,Dial(SIP/\${EXTEN:1}\@$NUMTELPHIN,,S(3600))
+exten => _9X.,n,Dial(SIP/\${EXTEN:1}@\${trunk1},,S(3600))
 exten => _9X.,n,Hangup
 
 include => ivrrecord
@@ -286,6 +346,36 @@ exten => $startplayback,n,Hangup
 " >> /etc/asterisk/extensions_alex.conf
 
 done
+################################################# для обзвонка 
+echo "
+[diallocal]
+exten => _X.,1,NoOp(Start Dial)
+exten => _X.,n,Set(T1=\${EPOCH})
+exten => _X.,n,Dial(SIP/\${phone}@\${line},130,S(1200))
+exten => _X.,n,Hangup
 
+exten => h,1,Set(T2=$[\${EPOCH}-\${T1}])
+exten => h,n,System(/bin/echo \"\${STRFTIME(\${EPOCH},,%Y.%m.%d)}-\${STRFTIME(\${EPOCH},,%H.%M.%S)}\;\${line}\;stat\${HANGUPCAUSE}\;\${DIALSTATUS}\;\${DIALEDTIME}\;\${ANSWEREDTIME}\;\${T2}\" >> /home/\${STRFTIME(\${EPOCH},,%Y%m%d)}-\${line}-err.csv)
+###################################################################################################
+################################## Bridging SIP channels ##########################################
+[call-bridge]
+exten => s,1,NoOp(BINGO!!!!!!)
+exten => s,n,Set(T1=\${EPOCH})
+exten => s,n,System('/bin/rm -f /var/spool/asterisk/outgoing/*')
+exten => s,n,AGI(record.agi,bingo,\${line},local)
+exten => s,n,Dial(SIP/101,130,gm(silence)S(600))
+### для дозвонка на мобилу, если вдруг ебница телефон в локальке
+;exten => s,n,Dial(SIP/777@terminatecall,130,gm(silence)S(600))
+;exten => s,n,System('/var/lib/asterisk/call.pl')
+exten => s,n,Wait(1)
+exten => s,n,Hangup
 
+#заносим в базу значение и запускаем поновой обзвон
+exten => h,1,Set(T2=\$[\${EPOCH}-\${T1}])
+exten => h,n,System(/bin/echo \"\${STRFTIME(\${EPOCH},,%Y.%m.%d)}-\${STRFTIME(\${EPOCH},,%H.%M.%S)}\;\${line}\;stat\${HANGUPCAUSE}\;\${DIALSTATUS}\;\${DIALEDTIME}\;\${ANSWEREDTIME}\;\${T2}\" >> /home/\${STRFTIME(\${EPOCH},,%Y%m%d)}-aaa.csv)
+#Если пришел звонок с транка - ебашим на звонок локальному абоненту
+exten => _X.,1,Set(line=server)
+exten => _X.,n,GoTo(s,1)
 
+" > /etc/asterisk/extensions_obzvon.conf
+service asterisk restart

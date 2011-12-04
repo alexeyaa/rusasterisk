@@ -15,7 +15,7 @@ email='101@3090607.ru'
 clear
 
 IFCONFIG=`which ifconfig 2>/dev/null||echo /sbin/ifconfig`
-IPADDR=`$IFCONFIG |gawk '/inet addr/{print $2}'|gawk -F: '{print $2}'`
+IPADDR=`$IFCONFIG |gawk '/inet addr/{print $2}'|gawk -F: '{print $2}' | grep -v 127.0`
 echo "$IPADDR"
 
 echo "Версия скрипта $VERSION"
@@ -23,9 +23,14 @@ echo "Железка $HW"
 echo "Жмем CTRL-C для выхода, или начинаем ставить дальше"
 read TEMP
 
+################################################ подправили DNS ########################################
+echo "
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+" > /etc/resolv.conf
 
 
-##################################### Скачиваем и ставим Asterisk начинаем с репозиториев  #####################################
+###################### Скачиваем и ставим Asterisk начинаем с репозиториев  ############################
 echo "
 [asterisk-current]
 name=CentOS-\$releasever - Asterisk - Current
@@ -57,7 +62,10 @@ yum -y install asterisk16.$HW
 #################### что б астериск работал качественно редактируем safe_asterisk
 sed -i -e  's/^TTY=/#TTY=/g' /usr/sbin/safe_asterisk
 
-/sbin/service asterisk restart
+service asterisk restart
+
+########################## ставим MOH ############################################
+yum -y install asterisk-sounds-moh-opsound-ulaw
 
 echo "######################### yum install sox  ##################################"
 yum -y install sox.$HW
@@ -112,7 +120,7 @@ yum -y install asterisk16-configs.$HW
 
 ########################################### разбираемся со  звуком ###########################################
 
-cp -f $ROOT_DIR/config_asterisk/sound/sound/*  /var/lib/asterisk/sounds/
+cp -f -R $ROOT_DIR/config_asterisk/sound/sound/*  /var/lib/asterisk/sounds/
 chown asterisk:asterisk -R /var/lib/asterisk/sounds/ru
 
 cp -f $ROOT_DIR/config_asterisk/agi/record.agi /var/lib/asterisk/agi-bin/record.agi
@@ -120,15 +128,18 @@ cp -f $ROOT_DIR/config_asterisk/agi/record.agi /var/lib/asterisk/agi-bin/record.
 cp -f $ROOT_DIR/config_asterisk/sound/2wav2stereo.sh /usr/local/bin/2wav2stereo.sh
 
 mkdir /var/www/html/wavplayer
-cp -f $ROOT_DIR/config_asterisk/sound/wavplayer/*  /var/www/html/wavplayer/
+cp -f -R $ROOT_DIR/config_asterisk/sound/wavplayer/*  /var/www/html/wavplayer/
 chown asterisk:asterisk -R /var/www/html/$FILE
+
+cp -f -R $ROOT_DIR/config_asterisk/sound/moh/*  /var/lib/asterisk/moh
+chown asterisk:asterisk -R /var/lib/asterisk/moh/
 
 mkdir /home/samba
 mkdir /home/samba/records
 ln -s /home/samba/records /var/www/html/records
 
 ################################## добавляем перловский скрипт для отправки почты ##################################
-cp -f $ROOT_DIR/config_asterisk/sendEmail /bin/sendEmail
+cp -f -R $ROOT_DIR/config_asterisk/sendEmail /bin/sendEmail
 
 ############################################## ставим iptables ##############################################
 cp -f $ROOT_DIR/iptables /etc/sysconfig/iptables
@@ -136,4 +147,19 @@ chmod +x $ROOT_DIR/iptables
 echo "
 /etc/sysconfig/iptables
 " >> /etc/rc.d/rc.local
+
+################### перегружаем сервисы
+service httpd restart
+
+########################### консоль подправляем ####################################
+echo "PS1='\[\033[01;31m\]>>\[\033[00m\] \! \u \[\033[01;34m\]\w\[\033[00m\] \n  \[\033[01;31m\].\[\033[00m\]'"  >> /root/.bashrc
+echo "
+ENTRY \"/etc/asterisk\" URL \"/etc/asterisk\"
+ENTRY \"/var/lib/asterisk\" URL \"/var/lib/asterisk\"
+ENTRY \"/var/spool/asterisk/outgoing\" URL \"/var/spool/asterisk/outgoing\"
+ENTRY \"/usr/local/src\" URL \"/usr/local/src\"
+ENTRY \"/root\" URL \"/root\"
+ENTRY \"/home\" URL \"/home\"
+"
+>> /root/.mc/hotlist
 
