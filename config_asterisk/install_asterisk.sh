@@ -363,8 +363,6 @@ exten => s,1,NoOp(BINGO!!!!!!)
 exten => s,n,Set(T1=\${EPOCH})
 exten => s,n,System('/bin/rm -f /var/spool/asterisk/outgoing/*')
 exten => s,n,AGI(record.agi,bingo,\${line},local)
-exten => s,n,Dial(SIP/101,130,gm(silence)S(600))
-### для дозвонка на мобилу, если вдруг ебница телефон в локальке
 ;exten => s,n,Dial(SIP/777@terminatecall,130,gm(silence)S(600))
 ;exten => s,n,System('/var/lib/asterisk/call.pl')
 exten => s,n,Wait(1)
