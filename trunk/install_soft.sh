@@ -124,8 +124,12 @@ cp -f -R $ROOT_DIR/config_asterisk/sound/sound/*  /var/lib/asterisk/sounds/
 chown asterisk:asterisk -R /var/lib/asterisk/sounds/ru
 
 cp -f $ROOT_DIR/config_asterisk/agi/record.agi /var/lib/asterisk/agi-bin/record.agi
+chown asterisk:asterisk /var/lib/asterisk/agi-bin/record.agi
+chmod +x /var/lib/asterisk/agi-bin/record.agi
 
 cp -f $ROOT_DIR/config_asterisk/sound/2wav2stereo.sh /usr/local/bin/2wav2stereo.sh
+chown asterisk:asterisk /usr/local/bin/2wav2stereo.sh
+chmod +x /usr/local/bin/2wav2stereo.sh
 
 mkdir /var/www/html/wavplayer
 cp -f -R $ROOT_DIR/config_asterisk/sound/wavplayer/*  /var/www/html/wavplayer/
@@ -134,13 +138,17 @@ chown asterisk:asterisk -R /var/www/html/$FILE
 cp -f -R $ROOT_DIR/config_asterisk/sound/moh/*  /var/lib/asterisk/moh
 chown asterisk:asterisk -R /var/lib/asterisk/moh/
 
+cp -f $ROOT_DIR/config_asterisk/call_mf.pl  /var/lib/asterisk/call.pl
+chown asterisk:asterisk /var/lib/asterisk/call.pl
+chmod +x /var/lib/asterisk/call.pl
+
 mkdir /home/samba
 mkdir /home/samba/records
 ln -s /home/samba/records /var/www/html/records
 
 ################################## добавляем перловский скрипт для отправки почты ##################################
 cp -f -R $ROOT_DIR/config_asterisk/sendEmail /bin/sendEmail
-
+chmod +x /bin/sendEmail
 ############################################## ставим iptables ##############################################
 cp -f $ROOT_DIR/iptables /etc/sysconfig/iptables
 chmod +x $ROOT_DIR/iptables
