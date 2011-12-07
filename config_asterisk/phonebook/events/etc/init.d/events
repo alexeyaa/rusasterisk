@@ -1,0 +1,29 @@
+#! /bin/sh -e
+#
+set -e
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+DAEMON=/var/www/html/phonebook/events/bin/start.py
+DAEMON_KILL=/var/www/html/phonebook/events/bin/stop.py
+
+test -x $DAEMON || exit 0
+test -x $DAEMON_KILL || exit 0
+
+. /lib/lsb/init-functions
+
+case "$1" in
+    start)
+	echo "Start events python ipline events"
+	exec $DAEMON
+    ;;
+  stop)
+	echo "Stop events python ipline events"
+	exec $DAEMON_KILL
+    ;;
+  *)
+    echo "Usage: /etc/init.d/events {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0

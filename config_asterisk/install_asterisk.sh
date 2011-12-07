@@ -1,5 +1,7 @@
 #!/bin/sh
 PASSWD='AlExAnDeRpWd'
+AMIPWD='AmIpWd'
+PHONEBOOKPWD='pHoNePwD'
 
 TERMINATECALLIP='80.246.254.114'
 TERMINATECALLPORT='5544'
@@ -23,6 +25,7 @@ STOPPEER=0
 VERSION='0.0.4'
 PORT='5544'
 clear
+
 
 echo ""
 echo ""
@@ -79,7 +82,6 @@ full => notice,warning,error,debug,verbose
 ############################### Aliases #########################################
 sed -i -e 's/^;template = individual_custom/template = individual_custom/g' /etc/asterisk/cli_aliases.conf
 sed -i -e 's/^;#include "\/etc\/asterisk\/aliases"/#include "\/etc\/asterisk\/aliases"/g' /etc/asterisk/cli_aliases.conf
-
 
 echo "; Сгенерированно скриптом от Сашки v.$VERSION
 sreg=sip show registry
@@ -233,8 +235,7 @@ register => $NUMTELPHIN:$PASTELPHIN@sip.telphin.com:5068
 
 
 
-
-############################### extension.conf
+################################################ extension.conf ################################################
 echo "
 ; добавлено Сашкиным скриптом v.$VERSION
 ;#include extensions_alex.conf
@@ -349,6 +350,39 @@ exten => $startplayback,n,Hangup
 " >> /etc/asterisk/extensions_alex.conf
 
 done
+
+
+######################################### manager.conf #########################################
+echo "
+[general]
+enabled = yes
+;webenabled = yes
+port = 5038
+bindaddr = 0.0.0.0
+
+[admin]
+secret = $AMIPWD
+deny=0.0.0.0/0.0.0.0
+permit=127.0.0.1/255.255.255.0
+read = system,call,log,verbose,command,agent,user
+write = system,call,log,verbose,command,agent,user
+
+[phonebook]
+secret = $PHONEBOOKPWD
+deny=0.0.0.0/0.0.0.0
+permit=127.0.0.1/255.255.255.0
+read = system,call,log,verbose,command,agent,user
+write = system,call,log,verbose,command,agent,user
+" > /etc/asterisk/manager.conf
+
+sed -i -e "s/^\$Secret=\"1234pwD\";/\$Secret=\"$PHONEBOOKPWD\";/g" /var/www/html/phonebook/config.php
+
+################################################################################################
+
+
+
+
+
 ################################################# для обзвонка 
 echo "
 [diallocal]
@@ -379,4 +413,15 @@ exten => _X.,1,Set(line=server)
 exten => _X.,n,GoTo(s,1)
 
 " > /etc/asterisk/extensions_obzvon.conf
+
+
+
+
+
+
+
+########################################### phone book ###############################################
+
+
 service asterisk restart
+
