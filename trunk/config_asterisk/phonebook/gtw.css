@@ -1,0 +1,120 @@
+
+Body
+{
+scrollbar-3dlight-color:;
+scrollbar-arrow-color:#999999;
+scrollbar-face-color:#9FCAD0;
+}
+   
+A
+{
+    COLOR: blue;
+	font-family : Arial, Helvetica, sans-serif;
+	FONT-SIZE: 9pt;
+    TEXT-DECORATION: none
+}
+
+
+A:hover
+{
+	color: Navy;
+	font-family : Arial, Helvetica, sans-serif;
+	FONT-SIZE: 9pt;
+	TEXT-DECORATION: none;
+	background-color :  #EFEFEF
+
+}
+
+LI
+{
+    FONT-SIZE: 12px
+}
+TD
+{
+	COLOR: #003366;
+	FONT-FAMILY: Verdana, Arial;
+	FONT-SIZE: 12px
+}
+
+#L1 a {
+float: left;
+padding: 25px 0 0;
+overflow: hidden;
+height: 0px !important;
+background: url(images/L1.png) 0px 0px no-repeat;
+width: 28px;
+}
+#L1 a:hover {
+background-position: 2px 2px;
+background-color: #EFEFEF
+}
+
+
+#L2 a {
+float: left;
+padding: 25px 0 0;
+overflow: hidden;
+height: 0px !important;
+background: url(images/L2.png) 0px 0px no-repeat;
+width: 28px;
+}
+#L2 a:hover {
+background-position: 2px 2px;
+background-color: #EFEFEF
+}
+
+
+#L3 a {
+float: left;
+padding: 25px 0 0;
+overflow: hidden;
+height: 0px !important;
+background: url(images/L3.png) 0px 0px no-repeat;
+width: 28px;
+}
+#L3 a:hover {
+background-position: 2px 2px;
+background-color: #EFEFEF
+}
+
+
+#L4 a {
+float: left;
+padding: 25px 0 0;
+overflow: hidden;
+height: 0px !important;
+background: url(images/L4.png) 0px 0px no-repeat;
+width: 28px;
+}
+#L4 a:hover {
+background-position: 2px 2px;
+background-color: #EFEFEF
+}
+
+
+#L5 a {
+float: left;
+padding: 25px 0 0;
+overflow: hidden;
+height: 0px !important;
+background: url(images/L5.png) 0px 0px no-repeat;
+width: 28px;
+}
+#L5 a:hover {
+background-position: 2px 2px;
+background-color: #EFEFEF
+}
+
+
+#L6 a {
+float: left;
+padding: 25px 0 0;
+overflow: hidden;
+height: 0px !important;
+background: url(images/L6.png) 0px 0px no-repeat;
+width: 28px;
+}
+#L6 a:hover {
+background-position: 2px 2px;
+background-color: #EFEFEF
+}

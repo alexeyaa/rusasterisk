@@ -1,0 +1,172 @@
+VERSION 1.1.1
+07.09.2010
+
+integration language es.php
+
+#############################################################################
+
+
+VERSION 1.1.0
+10:18 05.05.2010
+
+manager.php  call namelookup 
+
+#############################################################################
+
+
+
+VERSION 1.0.9
+10:37 24.09.2009
+
+reports.php custom mysql querries 
+
+config.php:
+// Custom Myyql Querry Reports only for all incomming 
+// EXAMPLE :  OR src LIKE '0%' =  report all 0xxxxxxxxxxx from source destination 
+$custom_report="OR src LIKE '0%'";
+
+
+#############################################################################
+
+
+VERSION 1.0.9
+10:18 04.08.2009
+
+administration.php + new_number.php
+Anpassungen der html-Tables für korrekte Anzeige im IE und OPERA
+
+
+#############################################################################
+
+
+VERSION 1.0.9
+10:18 04.08.2009
+
+register_global Check
+Gibt nun einen ERROR, wenn globals = off oder das htaccess nicht geht
+
+#############################################################################
+VERSION 1.0.9
+20:37 14.07.2009
+Einbindung lokaler Extensions-SIP Nummern wenn kein Freepbx vorhanden ist
+Die Erkennung läuft automatisch. Das sip-peers wird ausgelesen
+Jetzt auch mit Statusanzeige, ob der lokale Teilnehmer aktiv ist.
+- book.php (locale integration)
+- config.php (Hier kann mit $local_freepbx=1 angegeben werden, ob die Anzeige vom freepbx kommen soll 
+$local_freepbx=0 ohne freepbx (Standard Asterisk)
+
+
+
+#############################################################################
+VERSION 1.0.8
+09:59 23.05.2009
+XML- Report-List-Parameter für SNOM gesetzt 
+snomhelp.php erstellt
+
+
+#############################################################################
+VERSION 1.0.8
+
+09:31 16.04.2009
+.htaccess globals gesetzt
+Globalvariablen im config von while auf foreach geändert
+
+
+07:09 12.03.2009
+Uebersetzung italiano
+
+
+
+#############################################################################
+
+VERSION 1.0.7
+
+17:37 11.03.2009
+PHP-Versionsproblem
+mysql-pconnect gewechselt zu mysql_connect
+
+
+15:34 06.02.2009
+Vesionsnummer in File VERSION eingebaut
+XML Report für SNOM nun auch mit individuellen Extensions
+IE-Kompatibe ICON-Links
+
+
+11:18 19.01.2009
+CLIP Anzeige kann nun eingeschränkt werden im config:
+// default
+$cliplen=25
+
+
+#############################################################################
+VERSION 1.0.6
+
+17:03 20.12.2008
+NEU: CHANGE.log File
+Phonebook: Das vergessene 'U' wurde in die ABC... Liste aufgenommen
+Anzeige: neu mit mehrzeiligen Bemerkungen (MySQL DB bleibt sich gleich)
+Reports: jetzt mit 'nicht entgegen genommene Anrufe' werden mit ICON angezeigt
+
+12:54 26.12.2008
+Neue Link Icons
+Log-Protokoll ausgehende Anrufe
+Events-BUG behoben: teilweise wurde eine URL statt Name angezeigt
+XML_Report für Actions-URL :  Link: snom-report.php
+XML-Report URL wird in der Administration angezeigt (eingehende und ausgehende Anrufliste)
+XML-Report Ausgabe liste Begrenzung Default = 25 Zeilen
+XML-Name 'Reports' (Länge der Anzeige) kann nun im config.php eingestellt werden, Default: $XML_NAME_LEN=20;
+
+Phonebook ist kompatibel zu Asterisk 1.2.x - 1.4.x
+
+
+23:21 26.12.2008
+Events eingebunden (BETA-Version)
+Events-Monitor Fenster: R-Button eingebaut um alle Realtime-Einträge zu löschen/zurück zu setzen
+Events Mini-HowTo im phonebook/events/README.txt
+
+12:40 27.12.2008
+VM VoiceMail wird nun im Reports angezeigt 
+
+
+21:52 28.12.2008
+Neues Forum Icon
+
+14:50 29.12.2008
+snom-report.php : bei der XML Reportliste wird nun neu der Prefix nur bei Nummern beginnen mit '0xxxxx' 
+automatisch vorne angesetzt. alle anderen Nummern sind Lokal und somit ohne Prefix
+
+Bei den Web-Reports werden die gefunden Directoryes nun direkt beim Namen angezeigt (mit Verlinkung)
+ohne zusätzliches 'noname' angezeigt
+
+CLIP Anzeige: Bei den Web-Reports wird neu in der letzten Kolonne nun der von asterisk 
+generierte CLIP zusätzlich angezeigt. So werden nun auch lokale Nummern und individuelle 
+Einträge korrekt angezeigt.
+
+
+20:39 29.12.2008
+NEW: Redial Funktion 
+Der letzte ausgehende Anruf wird nun oben in der Direktwahl angezeigt.
+So kann ein Redial abgesetzt werden.
+Bei Klick in das Feld wird er Eintrag automatisch gelöscht.
+Bei lokalen Anrufen wird der Prefix nicht gesetz!
+
+08:01 01.01.2009
+Korrektur Prefix BUG
+
+16:11 08.01.2009
+config.php :  Default CH URL für WWW-Directory von local.ch auf tel.search.ch gewechselt
+directory.php:  Filter für tel.search.ch programmiert
+im Reports incomming und outgoing 'noname' Link eingebaut
+
+20:17 09.01.2009
+BUG : ICON von delete Button korrigiert
+
+00:18 10.01.2009
+Suchfuntion in Reports eingebaut (Sucht in Nummern und Name als Teilstring oder exact)
+Limite der Reports heraufgesetzt (wählbar)
+
+#############################################################################
+VERSION 1.0.x
+
+#############################################################################
+VERSION 1.0.x

@@ -1,0 +1,118 @@
+#############################################################################
+VERSION 1.0.9
+20:37 14.07.2009	
+Involvement of local-SIP extensions numbers if there is no FreePBX
+the recognition is automatic. SIP-peers is reading now status indication of local participant they is active.
+- book.php (integrates local)
+- config.php (you can quote $local_freepbx=1, if providing by FreePBX
+$local_freepbx=0 without FreePBX (Standard Asterisk only)
+
+#############################################################################
+VERSION 1.0.8
+09:59 23.05.2009
+XML- Report-List-Parameter add for SNOM
+snomhelp.php created
+
+
+#############################################################################
+VERSION 1.0.8
+
+09:31 16.04.2009
+.htaccess add globals
+Global variable in config from while to foreach modified
+
+
+07:09 12.03.2009
+Translation italiano
+
+
+#############################################################################
+
+VERSION 1.0.7
+
+17:37 11.03.2009
+PHP-Version problem
+mysql-pconnect changed to mysql_connect
+
+
+15:34 06.02.2009
+Add vesion number to file VERSION
+XML Report for SNOM now also with individual extensions
+IE-compatible ICON-Links
+
+
+11:18 19.01.2009
+CLIP display can now restricted at config:
+// default
+$cliplen=25
+
+
+#############################################################################
+VERSION 1.0.6
+
+17:03 20.12.2008
+NEU: CHANGE.log File
+Phonebook: the forgoten 'U' made into ABC... list ingested
+Display: new with majorities comments (MySQL DB to keep same)
+Reports: just with 'do not answered calls' appears with ICON
+
+
+#############################################################################
+VERSION 1.0.5
+
+20:39 29.12.2008
+NEW: Provide re-dial function 
+The last outgoing call is now at the top of the direct call screen, this made be a re-dial deductible.
+During click in the box will automatically delete the record, prefix for local calls is not legal!
+
+14:50 29.12.2008
+snom-report.php: Changes on XML report list, this now with prefix numbers only begin with '0xxxxx'
+next automatically applied. All other numbers are local and therefore without prefix
+
+The Web-Reports are now lookup names directly from the directory (include href)
+and no extra 'noname' will displayed
+
+CLIP displaying: Web-Reports will displying now in the last column with from Asterisk generated CLIP.
+So now even local numbers and individual entries displayed correctly
+
+12:54 26.12.2008
+New Link Icons
+Add Log-reporting for outgoing calls
+Events-BUG fixed: partially appeares URL instead of name
+XML_Report (SNOM) Actions-URL: Link: snom-report.php
+XML-Report (SNOM) URL will be displayed in the Administration screen (incoming & outgoing caller list)
+XML-Report (SNOM) Limiting output list, default = 25 lines
+XML-Name (SNOM) 'Reports' (displaying length) can now be set in config.php, default: $XML_NAME_LEN=20;
+Phonebook are compatible to Asterisk 1.2.x - 1.4.x
+
+23:21 26.12.2008
+Events containing (BETA-Version)
+Events-Monitor Window: R-Button added able for realtime-entries to delete/reset
+Events Mini HowTo in phonebook/events/README.txt
+
+17:03 20.12.2008
+NEW ADD: CHANGE.log File
+Phonebook: Insert the forgotten 'U' in the ABC... list
+Screen: New add multiline comment field (MySQL tables still unchanged)
+Reports: Added 'none answered calls' displaying with an ICON
+
+#############################################################################
+VERSION 1.0.4
+
+issue provide Python AJAX featured real-time panel (beta)
+#############################################################################
+VERSION 1.0.3
+
+add admin mode, if only admin should made changes
+#############################################################################
+VERSION 1.0.2
+
+add sign-in to modify phonebook
+#############################################################################
+VERSION 1.0.1
+
+add multilanguage support
+#############################################################################
+VERSION 1.0
+
+(NOV 2008) Initial release.

@@ -1,0 +1,61 @@
+CREATE DATABASE IF NOT EXISTS asterisk;
+USE asterisk;
+
+CREATE TABLE pbook (
+  id int(11) NOT NULL auto_increment,
+  calld varchar(50) NOT NULL,
+  name varchar(50) NOT NULL,
+  bemerkung text NOT NULL,
+  Diverses int(1) NOT NULL default 0,
+  KEY id (id),
+  KEY calld (calld),
+  KEY name (name)
+)  ;
+
+
+CREATE TABLE pbook_directory (
+  id int(9) NOT NULL,
+  tel varchar(20) NOT NULL,
+  name varchar(50) NOT NULL,
+  strasse varchar(50) NOT NULL,
+  ort varchar(50) NOT NULL,
+  KEY tel (tel),
+  KEY name (name)
+) ;
+
+
+CREATE TABLE IF NOT EXISTS users (
+  extension varchar(20) NOT NULL,
+  password varchar(20) default NULL,
+  name varchar(50) default NULL,
+  voicemail varchar(50) default NULL,
+  ringtimer int(3) default NULL,
+  noanswer varchar(100) default NULL,
+  recording varchar(50) default NULL,
+  outboundcid varchar(50) default NULL,
+  directdid varchar(50) default NULL,
+  didalert varchar(50) default NULL,
+  faxexten varchar(20) default NULL,
+  faxemail varchar(50) default NULL,
+  answer tinyint(1) default NULL,
+  wait int(2) default NULL,
+  privacyman tinyint(1) default NULL
+) ;
+
+
+CREATE TABLE IF NOT EXISTS events (
+  id int(10) unsigned NOT NULL auto_increment,
+  timestamp datetime NOT NULL,
+  event longtext,
+  uxtime int(11) NOT NULL,
+  DEST varchar(20) NOT NULL,
+  SRC varchar(20) NOT NULL,
+  UID varchar(20) NOT NULL,
+  CID varchar(20) NOT NULL,
+  CIDNAME varchar(50) NOT NULL,
+  IDdest varchar(20) NOT NULL,
+  IDsrc varchar(20) NOT NULL,
+  EVNT varchar(20) NOT NULL,
+  PRIMARY KEY  (id)
+) ;
+
