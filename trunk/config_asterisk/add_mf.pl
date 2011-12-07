@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-$root_dir=`pwd`
+$root_dir="/var/lib/asterisk";
 my %multifon = ();
 my $file_phone="$root_dir/phone.txt";
 open (PHONE, "< $file_phone");
@@ -36,15 +36,17 @@ username=$key
 type=friend
 secret=$value
 qualify=yes
-nat=yes
+nat=no
 insecure=port,invite
 host=193.201.229.35
 fromuser=$key
 fromdomain=multifon.ru
 dtmfmode=inband
-context=multifon
+context=multifon-in
 canreinvite=no
-allow=all
+disallow=all
+allow=ulaw
+allow=alaw
 \n";
 }
 close(PEER);

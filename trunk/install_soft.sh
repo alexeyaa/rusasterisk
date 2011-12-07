@@ -60,18 +60,18 @@ yum -y install yum-repos-asterisk.noarch
 echo "######################### yum install asterisk 16 ###########################"
 yum -y install asterisk16.$HW 
 #################### что б астериск работал качественно редактируем safe_asterisk
-sed -i -e  's/^TTY=/#TTY=/g' /usr/sbin/safe_asterisk
+sed -i -e 's/^TTY=/#TTY=/g' /usr/sbin/safe_asterisk
 
 service asterisk restart
 
-########################## ставим MOH ############################################
-yum -y install asterisk-sounds-moh-opsound-ulaw
-
+########################## ставим MOH и звуки  #########################################################
+yum -y install asterisk-sounds-moh-opsound-ulaw.noarch
+yum -y install asterisk-sounds-core-en-gsm.noarch
 echo "######################### yum install sox  ##################################"
 yum -y install sox.$HW
 
 echo "######################### yum install php  ##################################"
-yum install php.x86_64
+yum -y install php.$HW
 
 
 
@@ -118,6 +118,9 @@ yum -y install asterisk16-addons.$HW
 yum -y install asterisk16-addons-mysql.$HW
 yum -y install asterisk16-configs.$HW
 
+############################# инсталируем прочую требуху ##########################
+yum -y install nmap.$HW
+
 ########################################### разбираемся со  звуком ###########################################
 
 cp -f -R $ROOT_DIR/config_asterisk/sound/sound/*  /var/lib/asterisk/sounds/
@@ -142,6 +145,10 @@ cp -f $ROOT_DIR/config_asterisk/call_mf.pl  /var/lib/asterisk/call.pl
 chown asterisk:asterisk /var/lib/asterisk/call.pl
 chmod +x /var/lib/asterisk/call.pl
 
+cp -f $ROOT_DIR/config_asterisk/phone.txt  /var/lib/asterisk/phone.txt
+chown asterisk:asterisk /var/lib/asterisk/phone.txt
+
+
 mkdir /home/samba
 mkdir /home/samba/records
 ln -s /home/samba/records /var/www/html/records
@@ -161,6 +168,15 @@ service httpd restart
 
 ########################### консоль подправляем ####################################
 echo "PS1='\[\033[01;31m\]>>\[\033[00m\] \! \u \[\033[01;34m\]\w\[\033[00m\] \n  \[\033[01;31m\].\[\033[00m\]'"  >> /root/.bashrc
+
+
+############### Меняем временную зону 
+cp /etc/localtime /etc/localtime_old
+rm -f /etc/localtime
+cp -f /usr/share/zoneinfo/Etc/GMT-4 /etc/localtime
+
+######################## и напоследок запускаем mc, что бы появился .mc директория 
+mc &
 echo "
 ENTRY \"/etc/asterisk\" URL \"/etc/asterisk\"
 ENTRY \"/var/lib/asterisk\" URL \"/var/lib/asterisk\"
@@ -168,6 +184,5 @@ ENTRY \"/var/spool/asterisk/outgoing\" URL \"/var/spool/asterisk/outgoing\"
 ENTRY \"/usr/local/src\" URL \"/usr/local/src\"
 ENTRY \"/root\" URL \"/root\"
 ENTRY \"/home\" URL \"/home\"
-"
->> /root/.mc/hotlist
-
+" >> /root/.mc/hotlist
+fg %1

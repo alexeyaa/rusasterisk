@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 my @multifon=();
-my $file_phone="phone.txt";
+my $file_phone="/var/lib/asterisk/phone.txt";
 open (PHONE, "< $file_phone");
  while (<PHONE>) {
     chomp($_);
