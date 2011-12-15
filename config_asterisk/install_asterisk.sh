@@ -2,6 +2,7 @@
 PASSWD='AlExAnDeRpWd'
 AMIPWD='AmIpWd'
 PHONEBOOKPWD='pHoNePwD'
+PHONEBOOKPWDADM='1234pwDD'
 
 TERMINATECALLIP='80.246.254.114'
 TERMINATECALLPORT='5544'
@@ -13,6 +14,7 @@ NAT=no
 
 SOSPORT="8222"
 SOSHOST="home.tarakanovs.ru"
+domainvoicemail="tarakanovs.ru"
 
 FAXFROMEMAIL="help@yandex.ru"
 FAXTOEMAIL="nomail@nomail.ru"
@@ -20,7 +22,7 @@ FAXTOEMAIL="nomail@nomail.ru"
 USERAGENT="Planet"
 
 STARTPEER=0
-STOPPEER=0
+STOPPEER=10
 
 VERSION='0.0.4'
 PORT='5544'
@@ -88,6 +90,10 @@ sreg=sip show registry
 speer=sip show peers
 sdeb=sip set debug
 restart=core restart now
+dreload = dialplan reload
+cshow = core show channels
+cdial = console dial
+
 " > /etc/asterisk/aliases
 
 
@@ -105,17 +111,31 @@ directory=/var/lib/asterisk/moh/gz
 
 
 ######################################################################################################
+############################################# Voicemail###############################################
+######################################################################################################
+######################################################################################################
+
+echo "
+[general]
+#include vm_general.inc
+#include vm_email.inc
+[default]
+" > /etc/asterisk/voicemail.conf
+
+
+
+######################################################################################################
 ############################################# SIP.CONF ###############################################
 ######################################################################################################
 ######################################################################################################
 echo "; Сгенерированно скриптом от Сашки v.$VERSION
 [general]
 #include sip_general.conf
-;#include sip_registrations.conf
+#include sip_registrations.conf
 #include sip_registrations_mf.conf
 
-;#include sip_peers.conf
-;#include sip_trunks.conf
+#include sip_peers.conf
+#include sip_trunks.conf
 #include sip_peer_mf.conf
 #include sip_peer_terminat.conf
 
@@ -211,19 +231,24 @@ allow=ulaw
 allow=all
 context=office
 
-
-
 " > /etc/asterisk/sip_peers.conf
 
+##################################################################################################################
+##################################################################################################################
+########################## добавляем пользователей и их почту ####################################################
+##################################################################################################################
+##################################################################################################################
 for (( c=$STARTPEER; $c<$STOPPEER; c=$c+1 ));
 do
 rnd=`cat /dev/urandom |tr -dc A-Za-z0-9| (head -c $1 > /dev/null 2>&1 || head -c 8)`
 let peer=100+$c
-echo "
-[$peer](peers)
+echo "[$peer](peers)
 username=$peer
-secret=$rnd
-" >> /etc/asterisk/sip_peers.conf
+secret=$rnd" >> /etc/asterisk/sip_peers.conf
+
+
+rnd2=`cat /dev/urandom |tr -dc 0-9| (head -c $1 > /dev/null 2>&1 || head -c 3)`
+echo "$peer => $rnd2,user_$peer,$peer@$domainvoicemail,,attach=yes" > /etc/asterisk/voicemail.conf
 done
             
 
@@ -233,24 +258,56 @@ register => $NUMTELPHIN:$PASTELPHIN@sip.telphin.com:5068
 
 " > /etc/asterisk/sip_registrations.conf
 
+echo "
+emailbody=\${VM_NAME},
+\n\nУ Вас новое сообщение в голосовом ящике \${VM_MAILBOX}:
+\n\n\tОт:\t\${VM_CALLERID}\n
+\tДлительность:\t \${VM_DUR} сек.\n
+\tДата:\t\${VM_DATE}\n\n
+Наберите *98 для доступа к голосовой почте с Вашего IP телефона.\n
+Для проверки голосовой почты посетите  http://$domainvoicemail/recordings/index.php \n
+" > /etc/asterisk/vm_email.inc
 
+echo "
+format=wav49|wav
+attach=yes
+pbxskip=yes
+serveremail=help@$domainvoicemail
+fromstring=VoiceMail $domainmail
+maxsilence=5
+silencethreshold=128
+skipms=3000
+review=yes
+operator=yes
+nextaftercmd=yes
 
-################################################ extension.conf ################################################
+maxsecs=60
+minsecs=3
+" > /etc/asterisk/vm_general.inc
+
+##############################################################################################################
+##############################################################################################################
+############################################## extension.conf ################################################
+##############################################################################################################
+##############################################################################################################
 echo "
 ; добавлено Сашкиным скриптом v.$VERSION
-;#include extensions_alex.conf
+#include extensions_alex.conf
 ;############## Для мультифона созадили отдельный файл
 #include extensions_mf.conf
 #include extensions_obzvon.conf
+#include extensions_pbook.conf
 " > /etc/asterisk/extensions.conf
 
+
+############################################# extension_alex.conf ############################################
 echo "
 ; Сгенерированно скриптом от Сашки v.$VERSION
 [nocontext]
 exten _X.,1,Hangup()
 exten s,1,Hangup()
 
-;################################################## Локальный офисный контекст ###########################################
+;######################################### Локальный офисный контекст #########################################
 [office]
 ;######################## локальные звонки ########################
 exten => _XXX,1,NoOp(internal phones \${EXTEN} status - \${SIPPEER(\${EXTEN},status)})
@@ -299,27 +356,28 @@ exten => *98,n,VoiceMailMain()
 ;#exten => 000,n,ReceiveFAX(\${FAXFILE})
 ;#exten => 000,n,System('/bin/sendEmail -f FAXFROMEMAIL -t FAXTOEMAIL -a \${FAXFILE} -u \"Fax from \${CALLERID(num)}\" -m \"Recive fax\nFrom Asterisk \n local call \${STRFTIME(\${EPOCH},,%H.%M.%S)}\" -s smtp.yandex.ru')
 
-;############## puckup ####################
+#################################################### puckup ##############################################
 exten => *,1,Pickup(\${EXTEN:1})
-;############## puckup ####################
 
-;############## chanspy ###################
+##################################################### chanspy ############################################
 exten => *00,1,ChanSpy(all,oq)
-;############## chanspy ###################
 
-;############################# исходящие звонки от Телфина ##################################
+;################################ исходящие звонки от Телфина ############################################
 exten => _9X.,1,NoOp(Call to World - Telphin )
 exten => _9X.,n,AGI(record.agi,out9,\${CALLERID(num)},\${EXTEN:1})
-exten => _9X.,n,Dial(SIP/\${EXTEN:1}@\${trunk1},,S(3600))
+exten => _9X.,n,Dial(SIP/8\${EXTEN:2}@\${trunk1},,S(3600))
 exten => _9X.,n,Hangup
 
 include => ivrrecord
-;###################################################
+;##########################################################################################################
 ;#Дозваниваемся до тех. поддержки, т.е. до меня из контекста ОФИС
-exten => 911,1,Dial(SIP/\${EXTEN}@sos)
+
+exten => 911,1,NoOp(Call to techsupport)
+exten => 911,n,AGI(record.agi,support,\${CALLERID(num)},\${EXTEN})
+exten => 911,n,Dial(SIP/\${EXTEN}@sos)
 exten => 911,n,Hangup
 
-;#Когда я захочу дозвониться до когото в офисе, я тут дложен подправить
+;################# Когда я захочу дозвониться до когото в офисе, я тут дложен подправить ##################
 [sos]
 exten => s,1,NoOp(Context sos Extentions s)
 exten => s,n,Hangup
@@ -327,12 +385,8 @@ exten => _X.,1,NoOp(Context sos Extentions _X.)
 exten => _X.,n,Hangup
 
 
-" > /etc/asterisk/extensions_alex.conf
-
-echo "
 [ivrrecord]
-" >> /etc/asterisk/extensions_alex.conf
-
+" > /etc/asterisk/extensions_alex.conf
 for (( c=0; $c<11; c=$c+1 ));
 do
 let startrecord=601+$c
@@ -346,44 +400,22 @@ exten => $startrecord,n,Hangup
 exten => $startplayback,1,Wait(1)
 exten => $startplayback,n,Playback(/var/lib/asterisk/sounds/$startrecord)
 exten => $startplayback,n,Hangup
-
 " >> /etc/asterisk/extensions_alex.conf
-
 done
 
+########################################### end extension_alex.conf ######################################
 
-######################################### manager.conf #########################################
 echo "
-[general]
-enabled = yes
-;webenabled = yes
-port = 5038
-bindaddr = 0.0.0.0
-
-[admin]
-secret = $AMIPWD
-deny=0.0.0.0/0.0.0.0
-permit=127.0.0.1/255.255.255.0
-read = system,call,log,verbose,command,agent,user
-write = system,call,log,verbose,command,agent,user
-
-[phonebook]
-secret = $PHONEBOOKPWD
-deny=0.0.0.0/0.0.0.0
-permit=127.0.0.1/255.255.255.0
-read = system,call,log,verbose,command,agent,user
-write = system,call,log,verbose,command,agent,user
-" > /etc/asterisk/manager.conf
-
-sed -i -e "s/^\$Secret=\"1234pwD\";/\$Secret=\"$PHONEBOOKPWD\";/g" /var/www/html/phonebook/config.php
-
-################################################################################################
+; добавлено Сашкиным скриптом v.$VERSION
+[pbook]
+exten => _01X.,1,NoOp(Call from PhoneBook)
+exten => _01X.,n,AGI(record.agi,pbook,\${CALLERID(num)},\${EXTEN:2})
+exten => _01X.,n,Set(CDR(userfield)=\${CALLERID(num)},\${EXTEN:2},\${SOUNDFILE})
+exten => _01X.,n,Dial(SIP/\${EXTEN:2}@\${trunk1})
+" > /etc/asterisk/extensions_pbook.conf
 
 
-
-
-
-################################################# для обзвонка 
+############################################### extensions_obzvon.conf  ####################################
 echo "
 [diallocal]
 exten => _X.,1,NoOp(Start Dial)
@@ -393,8 +425,7 @@ exten => _X.,n,Hangup
 
 exten => h,1,Set(T2=\$[\${EPOCH}-\${T1}])
 exten => h,n,System(/bin/echo \"\${STRFTIME(\${EPOCH},,%Y.%m.%d)}-\${STRFTIME(\${EPOCH},,%H.%M.%S)}\;\${line}\;stat\${HANGUPCAUSE}\;\${DIALSTATUS}\;\${DIALEDTIME}\;\${ANSWEREDTIME}\;\${T2}\" >> /home/\${STRFTIME(\${EPOCH},,%Y%m%d)}-\${line}-err.csv)
-;###################################################################################################
-;################################## Bridging SIP channels ##########################################
+;################################### Bridging SIP channels ##################################################
 [call-bridge]
 exten => s,1,NoOp(BINGO!!!!!!)
 exten => s,n,Set(T1=\${EPOCH})
@@ -414,14 +445,40 @@ exten => _X.,n,GoTo(s,1)
 
 " > /etc/asterisk/extensions_obzvon.conf
 
+##############################################################################################################
+##############################################################################################################
+############################################ end extension.conf ##############################################
+##############################################################################################################
+##############################################################################################################
 
 
+############################################### manager.conf #################################################
+echo "
+[general]
+enabled = yes
+;webenabled = yes
+port = 5038
+bindaddr = 0.0.0.0
 
+[admin]
+secret = $AMIPWD
+deny=0.0.0.0/0.0.0.0
+permit=127.0.0.1/255.255.255.0
+read = system,call,log,verbose,command,agent,user,originate
+write = system,call,log,verbose,command,agent,user,originate
 
+[phonebook]
+secret = $PHONEBOOKPWD
+deny=0.0.0.0/0.0.0.0
+permit=127.0.0.1/255.255.255.0
+read = system,call,log,verbose,command,agent,user,originate
+write = system,call,log,verbose,command,agent,user,originate
 
+" > /etc/asterisk/manager.conf
 
-########################################### phone book ###############################################
-
+sed -i -e "s/^\$Secret=\"AMIpassword\";/\$Secret=\"$PHONEBOOKPWD\";/g" /var/www/html/phonebook/config.php
+sed -i -e "s/^\$_SESSION['admin_pwd'] = '1234pwDD';/\$_SESSION['admin_pwd'] = '$PHONEBOOKPWDADM';/g" /var/www/html/phonebook/config.php
+######################################## end manager.conf #####################################################
 
 service asterisk restart
 
