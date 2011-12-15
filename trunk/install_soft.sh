@@ -73,8 +73,9 @@ echo "################################# yum install sox  #######################
 yum -y install sox
 
 echo "################################## yum install php  ################################################"
-yum -y install php
 yum -y install php-mysql
+yum -y install php
+
 
 echo "Жмем CTRL-C если не поставился php или продолжаем дальше ставить"
 read TEMP
@@ -95,7 +96,7 @@ cd $ROOT_DIR
 echo "################################### yum install httpd  #############################################"
 yum -y install httpd
 echo "
-Listen 323
+Listen 323,324
 <VirtualHost *:323>
  ServerName asterisk.localhost
  ServerAlias *.asterisk.localhost
@@ -104,6 +105,21 @@ Listen 323
  CustomLog /var/log/httpd/asterisk.log combined
  DocumentRoot /var/www/html/wavplayer/
  <Directory \"/var/www/html/wavplayer/\">
+   DirectoryIndex index.php index.html
+   Options FollowSymLinks +Indexes
+   Order allow,deny
+   Allow from all
+ </Directory>
+</VirtualHost>
+
+<VirtualHost *:324>
+ ServerName asterisk.localhost
+ ServerAlias *.asterisk.localhost
+ ServerAdmin $email
+ ErrorLog /var/log/httpd/asterisk.err
+ CustomLog /var/log/httpd/asterisk.log combined
+ DocumentRoot /var/www/html/phonebook/
+ <Directory \"/var/www/html/phonebook/\">
    DirectoryIndex index.php index.html
    Options FollowSymLinks +Indexes
    Order allow,deny
@@ -122,6 +138,7 @@ service mysqld start
 mysql --user=root --password="$PASSWD" < $ROOT_DIR/config_asterisk/sql.txt
 mysql --user=root --password="$PASSWD" < $ROOT_DIR/config_asterisk/phonebook.txt
 
+
 ########################### после mysql ставим addon астериска  ########################################
 echo "######################### после mysql ставим addon астериска  ####################################"
 yum -y install asterisk16-addons 
@@ -131,8 +148,6 @@ yum -y install asterisk16-configs
 ########################################## инсталируем прочую требуху ##################################
 echo "##################################### инсталируем прочую требуху #################################";
 yum -y install nmap
-
-
 
 ################################### копируем рабочие конфиги и файлы####################################
 echo "##################################################################################################"
