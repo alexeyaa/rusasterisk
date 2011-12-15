@@ -1,0 +1,31 @@
+#!/usr/bin/perl -w
+use Asterisk::AGI;
+use DBI;
+
+$AGI = new Asterisk::AGI;
+my %input = $AGI->ReadParse();
+my $mysqluser="root";
+my $mysqlpasswd="AlExAnDeRpWd";
+my $dbname="asterisk";
+my $dbtable="pbook";
+
+
+my $src = $AGI->get_variable('CALLERID(num)');
+
+
+my $dbh = DBI->connect("DBI:mysql:$dbname:localhost", "$mysqluser","$mysqlpasswd");
+
+$sth = $dbh->prepare("select name from pbook where calld like\"\%$src\"");
+$sth->execute;
+while ($ref =  $sth->fetchrow_arrayref) {
+  $name=$$ref[0];
+ }
+
+my $name_tr=`echo "$name" | iconv -t koi-7 | tr a-zA-Z A-Za-z`;
+$AGI->set_variable("CALLERID(num)", "7$src");
+$AGI->set_variable("CDR(src)", "7$src");
+$AGI->set_variable("CALLERID(name)", "$name_tr");
+$AGI->set_variable("rus_name", $name);
+
+
+exit 0;
