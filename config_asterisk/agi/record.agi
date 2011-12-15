@@ -20,6 +20,9 @@ use Asterisk::AGI;
 $AGI = new Asterisk::AGI;
 my %input = $AGI->ReadParse();
 
+$filename="$root_dir/$datemonth/$dateday/$ARGV[0]\_$date\_src$ARGV[1]\_dst$ARGV[2]";
+$filename_ext="$root_dir/$datemonth/$dateday/$ARGV[0]\_$date\_src$ARGV[1]\_dst$ARGV[2].wav";
 $AGI->set_variable("MONITOR_EXEC", $wav_conert);
-$AGI->exec("Monitor","wav,$root_dir/$datemonth/$dateday/$ARGV[0]\_$date\_src$ARGV[1]\_dst$ARGV[2],m");
+$AGI->set_variable("SOUNDFILE", $filename_ext);
+$AGI->exec("Monitor","wav,$filename,m");
 exit 0;
