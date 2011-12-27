@@ -73,16 +73,22 @@ echo "################################# yum install sox  #######################
 yum -y install sox
 
 echo "################################## yum install php  ################################################"
+yum -y remove php
+yum -y remove php-common
+
 yum -y install php-mysql
 yum -y install php
-
+yum -y install php-gd
 
 echo "Жмем CTRL-C если не поставился php или продолжаем дальше ставить"
 read TEMP
 
-
+#################################### ставим статистику, телефонную книгу  ###############################
 sed -i -e 's/register_globals = Off/register_globals = On/g' /etc/php.ini
-cp -f -R $ROOT_DIR/config_asterisk/phonebook/  /var/www/html/
+cp -f -R $ROOT_DIR/config_asterisk/www/  /var/www/html/
+
+mkdir -p /usr/X11R6/lib/X11/fonts/TTF
+cp -f -R $ROOT_DIR/config_asterisk/fonts/  /usr/X11R6/lib/X11/fonts/TTF
 
 ############################################# Ставим perl AGI ###########################################
 echo "############################################## Ставим perl AGI ####################################"
@@ -96,7 +102,9 @@ cd $ROOT_DIR
 echo "################################### yum install httpd  #############################################"
 yum -y install httpd
 echo "
-Listen 323,324
+Listen 323
+Listen 324
+Listen 325
 <VirtualHost *:323>
  ServerName asterisk.localhost
  ServerAlias *.asterisk.localhost
@@ -126,6 +134,22 @@ Listen 323,324
    Allow from all
  </Directory>
 </VirtualHost>
+
+<VirtualHost *:325>
+ ServerName asterisk.localhost
+ ServerAlias *.asterisk.localhost
+ ServerAdmin 101@3090607.ru
+ ErrorLog /var/log/httpd/stat.err
+ CustomLog /var/log/httpd/stat.log combined
+ DocumentRoot /var/www/html/stat/
+  <Directory \"/var/www/html/stat/\">
+   DirectoryIndex index.php index.html
+   Options FollowSymLinks +Indexes
+   Order allow,deny
+   Allow from all
+  </Directory>
+</VirtualHost>
+                    
 " > /etc/httpd/conf.d/asterisk.conf
 
 echo "Hellow World" > /var/www/html/index.html
@@ -137,7 +161,8 @@ service mysqld start
 /usr/bin/mysqladmin -u root password "$PASSWD"
 mysql --user=root --password="$PASSWD" < $ROOT_DIR/config_asterisk/sql.txt
 mysql --user=root --password="$PASSWD" < $ROOT_DIR/config_asterisk/phonebook.txt
-
+########################################## python-mysql для pbook ######################################
+yum -y  install MySQL-python
 
 ########################### после mysql ставим addon астериска  ########################################
 echo "######################### после mysql ставим addon астериска  ####################################"
@@ -148,6 +173,13 @@ yum -y install asterisk16-configs
 ########################################## инсталируем прочую требуху ##################################
 echo "##################################### инсталируем прочую требуху #################################";
 yum -y install nmap
+
+############################################# Hylafax #######################################
+yum -y install gcc
+yum -y install gcc-c++
+yum -y install libtiff-devel
+yum -y localinstall --nogpgcheck  ./hylafax-5.5.0-1.i386.rpm
+
 
 ################################### копируем рабочие конфиги и файлы####################################
 echo "##################################################################################################"
@@ -161,9 +193,8 @@ echo "##########################################################################
 cp -f -R $ROOT_DIR/config_asterisk/sound/sound/*  /var/lib/asterisk/sounds/
 chown asterisk:asterisk -R /var/lib/asterisk/sounds/ru
 
-cp -f $ROOT_DIR/config_asterisk/agi/record.agi /var/lib/asterisk/agi-bin/record.agi
-chown asterisk:asterisk /var/lib/asterisk/agi-bin/record.agi
-chmod +x /var/lib/asterisk/agi-bin/record.agi
+cp -f $ROOT_DIR/config_asterisk/agi/* /var/lib/asterisk/agi-bin/
+chown asterisk:asterisk -R /var/lib/asterisk/agi-bin/
 
 cp -f $ROOT_DIR/config_asterisk/sound/2wav2stereo.sh /usr/local/bin/2wav2stereo.sh
 chown asterisk:asterisk /usr/local/bin/2wav2stereo.sh
@@ -182,6 +213,11 @@ chmod +x /var/lib/asterisk/call.pl
 
 cp -f $ROOT_DIR/config_asterisk/phone.txt  /var/lib/asterisk/phone.txt
 chown asterisk:asterisk /var/lib/asterisk/phone.txt
+
+ 
+cp -f $ROOT_DIR/config_asterisk/app_voicechanger.so  /usr/lib/asterisk/modules/
+chown asterisk:asterisk /usr/lib/asterisk/modules/app_voicechanger.so
+
 
 mkdir /home/samba
 mkdir /home/samba/records

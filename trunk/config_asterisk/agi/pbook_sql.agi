@@ -21,10 +21,8 @@ while ($ref =  $sth->fetchrow_arrayref) {
   $name=$$ref[0];
  }
 
-my $name_tr=`echo "$name" | iconv -t koi-7 | tr a-zA-Z A-Za-z`;
 $AGI->set_variable("CALLERID(num)", "7$src");
-$AGI->set_variable("CDR(src)", "7$src");
-$AGI->set_variable("CALLERID(name)", "$name_tr");
+$AGI->set_variable("CALLERID(name)", "$name");
 $AGI->set_variable("rus_name", $name);
 
 
