@@ -2,7 +2,7 @@
 PASSWD='AlExAnDeRpWd'
 AMIPWD='AmIpWd'
 PHONEBOOKPWD='pHoNePwD'
-PHONEBOOKPWDADM='1234pwDD'
+PHONEBOOKPWDADM='alex'
 
 TERMINATECALLIP='80.246.254.114'
 TERMINATECALLPORT='5544'
@@ -153,13 +153,13 @@ echo "; Сгенерированно скриптом от Сашки v.$VERSION
 host=$TERMINATECALLIP
 port=$TERMINATECALLPORT
 qualify=yes
-type=peer
+type=friend
 nat=no
 insecure=invite,port
 canreinvite=no
 disallow=all
 allow=ulaw
-allow=all
+allow=alaw
 " > /etc/asterisk/sip_peer_terminat.conf
 
 
@@ -210,7 +210,7 @@ context=sos
 username=$NUMTELPHIN
 fromuser=$NUMTELPHIN
 defaultuser=$NUMTELPHIN
-password=$PASTELPHIN
+secret=$PASTELPHIN
 host=sip.telphin.com
 fromdomain=sip.telphin.com
 port=5068
@@ -294,7 +294,7 @@ echo "
 ; добавлено Сашкиным скриптом v.$VERSION
 #include extensions_alex.conf
 ;############## Для мультифона созадили отдельный файл
-#include extensions_mf.conf
+;#include extensions_mf.conf
 #include extensions_obzvon.conf
 #include extensions_pbook.conf
 " > /etc/asterisk/extensions.conf
@@ -304,8 +304,8 @@ echo "
 echo "
 ; Сгенерированно скриптом от Сашки v.$VERSION
 [nocontext]
-exten _X.,1,Hangup()
-exten s,1,Hangup()
+exten => _X.,1,Hangup()
+exten => s,1,Hangup()
 
 ;######################################### Локальный офисный контекст #########################################
 [office]
@@ -356,10 +356,10 @@ exten => *98,n,VoiceMailMain()
 ;#exten => 000,n,ReceiveFAX(\${FAXFILE})
 ;#exten => 000,n,System('/bin/sendEmail -f FAXFROMEMAIL -t FAXTOEMAIL -a \${FAXFILE} -u \"Fax from \${CALLERID(num)}\" -m \"Recive fax\nFrom Asterisk \n local call \${STRFTIME(\${EPOCH},,%H.%M.%S)}\" -s smtp.yandex.ru')
 
-#################################################### puckup ##############################################
+;#################################################### puckup ##############################################
 exten => *,1,Pickup(\${EXTEN:1})
 
-##################################################### chanspy ############################################
+;##################################################### chanspy ############################################
 exten => *00,1,ChanSpy(all,oq)
 
 ;################################ исходящие звонки от Телфина ############################################
@@ -411,7 +411,7 @@ echo "
 exten => _01X.,1,NoOp(Call from PhoneBook)
 exten => _01X.,n,AGI(record.agi,pbook,\${CALLERID(num)},\${EXTEN:2})
 exten => _01X.,n,Set(CDR(userfield)=\${CALLERID(num)},\${EXTEN:2},\${SOUNDFILE})
-exten => _01X.,n,Dial(SIP/\${EXTEN:2}@\${trunk1})
+exten => _01X.,n,Dial(SIP/8\${EXTEN:3}@\trunk1)
 " > /etc/asterisk/extensions_pbook.conf
 
 
@@ -477,7 +477,7 @@ write = system,call,log,verbose,command,agent,user,originate
 " > /etc/asterisk/manager.conf
 
 sed -i -e "s/^\$Secret=\"AMIpassword\";/\$Secret=\"$PHONEBOOKPWD\";/g" /var/www/html/phonebook/config.php
-sed -i -e "s/^\$_SESSION['admin_pwd'] = '1234pwDD';/\$_SESSION['admin_pwd'] = '$PHONEBOOKPWDADM';/g" /var/www/html/phonebook/config.php
+sed -i -e "s/^\$\_SESSION\['admin_pwd'\] = '1234pwDD';/\$\_SESSION\['admin_pwd'\] = '$PHONEBOOKPWDADM';/g" /var/www/html/phonebook/config.php
 ######################################## end manager.conf #####################################################
 
 service asterisk restart

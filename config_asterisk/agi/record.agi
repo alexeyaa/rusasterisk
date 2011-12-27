@@ -25,4 +25,6 @@ $filename_ext="$root_dir/$datemonth/$dateday/$ARGV[0]\_$date\_src$ARGV[1]\_dst$A
 $AGI->set_variable("MONITOR_EXEC", $wav_conert);
 $AGI->set_variable("SOUNDFILE", $filename_ext);
 $AGI->exec("Monitor","wav,$filename,m");
+$AGI->set_variable("AUDIOHOOK_INHERIT(MixMonitor)","yes");
+
 exit 0;
